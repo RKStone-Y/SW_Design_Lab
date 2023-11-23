@@ -1,0 +1,15 @@
+Session start at 202311941_21_00_20
+20231102 21:00:20 load md_file/test4.md
+20231102 21:00:20 append-head # 旅⾏清单
+20231102 21:00:20 append-tail ## 亚洲
+20231102 21:00:20 save
+20231102 21:00:20 append-tail 1. 中国
+20231102 21:00:20 append-tail 2. ⽇本
+20231102 21:00:20 append-tail ## 欧洲
+20231102 21:00:20 load md_file/test3.md
+20231102 21:00:20 list-tree
+20231102 21:00:20 load md_file/test4.md
+20231102 21:00:20 list-tree
+md_file/test4.md 0s
+md_file/test3.md 0s
+md_file/test4.md 0s

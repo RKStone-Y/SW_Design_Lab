@@ -1,0 +1,12 @@
+load md_file/test4.md
+append-head # 旅⾏清单
+append-tail ## 亚洲
+save
+append-tail 1. 中国
+append-tail 2. ⽇本
+append-tail ## 欧洲
+load md_file/test3.md
+list-tree
+load md_file/test4.md
+list-tree
+quit
