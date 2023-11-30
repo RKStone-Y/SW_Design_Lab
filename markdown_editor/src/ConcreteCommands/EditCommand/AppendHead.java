@@ -1,21 +1,27 @@
 package ConcreteCommands.EditCommand;
 
 import Interface.Command;
-import Receiver.EditTools;
+import Receiver.Workspace;
 
 
 public class AppendHead extends Command {
     protected String new_content;
 
     public static final int FIRST_LINE = 0;
-    public AppendHead(EditTools edit_tools, String new_content){
-        super(edit_tools);
+    public AppendHead(Workspace workspace, String new_content){
+        super(workspace);
+        command_id = 2;
         this.new_content = new_content;
     }
 
     @Override
-    public void execute() {
+    public boolean undo() {
+        return workspace.deleteContentFromFile(new_content);
+    }
+
+    @Override
+    public boolean execute() {
         notifyHistoryObserver();
-        edit_tools.addNewContentToFile(FIRST_LINE,new_content);
+        return workspace.addNewContentToFile(FIRST_LINE,new_content);
     }
 }

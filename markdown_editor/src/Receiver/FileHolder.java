@@ -10,10 +10,15 @@ public class FileHolder {
     public List<String> content = new ArrayList<>();
     public CommandHistory history = new CommandHistory();
     protected String file_path = "";
-    public List<String> origin_content = new ArrayList<>();
     public int content_lines;
 
+    public void clear(){
+        file_path = "";
+        content.clear();
+        history.clear();
+        content_lines = -1;
 
+    }
     public String getFile_path(){
         return this.file_path;
     }
@@ -26,7 +31,9 @@ public class FileHolder {
         content.addAll(new_content);
     }
 
-    public void openMarkDownFile(){ // Called by the Command Load
+    public boolean openMarkDownFile(){
+        // Called by the Command Load
+
 //        if(!content.isEmpty()){
 //            System.out.println("打开新文件将覆盖原文件，是否继续执行load：（Y/N）（请确定已保存源原文件）");
 //            Scanner scanner = new Scanner(System.in);
@@ -41,10 +48,10 @@ public class FileHolder {
 //                }
 //            }
 //        }
-        history.clearTheStack();
+        history.clear();
         if(!file_path.endsWith(".md")){
             System.err.println("请输入markdown文件：*.md");
-            return;
+            return false;
         }
         File file = new File(file_path);
         content = new ArrayList<>();
@@ -56,7 +63,7 @@ public class FileHolder {
                 }
             }catch(IOException e){
                 System.err.println("无法创建文件：" + file_path);
-                return;
+                return false;
             }
         }
 
@@ -68,19 +75,23 @@ public class FileHolder {
                     content.add(line);
                 }
                 content_lines = content.size();
+                return true;
             } catch (IOException e) {
                 e.printStackTrace();
+                return false;
                 // 处理文件读取异常
             }
         } else {
             System.err.println(file_path + " 不是一个有效的文件路径。");
+            return false;
         }
     }
 
-    public void saveFile(){
+    public boolean saveFile(){
         File file = new File(file_path);
         if(!file.exists()){
             System.err.println("文件不合法，无法保存：" + file_path);
+            return false;
         }
         if (file.exists()) {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file_path))) {
@@ -93,8 +104,10 @@ public class FileHolder {
             } catch (IOException e) {
                 e.printStackTrace();
                 // 处理文件写入异常
+                return false;
             }
         }
+        return true;
     }
 
     public List<String> searchTargetDirectory(String target_dir){
@@ -129,5 +142,15 @@ public class FileHolder {
         return result;
     }
 
+    public Memento createMemento(){
+        return new Memento(this.content,this.history,this.file_path,this.content_lines);
+    }
+    public void restore(Memento memento){
+        this.content.clear();
+        this.content.addAll(memento.content());
+        this.content_lines= memento.content_lines();
+        this.history=memento.history();
+        this.file_path= memento.file_path();
+    }
 
 }

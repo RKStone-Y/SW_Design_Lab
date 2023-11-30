@@ -14,7 +14,6 @@ public class TreeConstructor {
         int first_level = 0;
         boolean first_flag = true;
         for(String line: file_content)  {
-
             if (line.startsWith("#")) {
                 int level = countHeadingLevel(line);
                 if(first_flag){

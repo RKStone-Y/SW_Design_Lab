@@ -1,18 +1,24 @@
 package ConcreteCommands.FileCommand;
 
 import Interface.Command;
-import Receiver.EditTools;
+import Receiver.Workspace;
 
 public class Load extends Command {
     String file_path;
-    public Load(EditTools edit_tools, String file_path) {
-        super(edit_tools);
+    public Load(Workspace workspace, String file_path) {
+        super(workspace);
+        command_id = 7;
         this.file_path = file_path;
     }
-    public void execute(){
-        edit_tools.file_holder.setFilePath(file_path);
-        edit_tools.file_holder.openMarkDownFile();
-        notifyHistoryObserver();
+    @Override
+    public boolean undo() {
+        return true;
+    }
+    @Override
+    public boolean execute(){
+        workspace.file_holder.setFilePath(file_path);
+        return workspace.file_holder.openMarkDownFile();
+
     }
 
 }

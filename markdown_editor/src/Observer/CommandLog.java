@@ -12,6 +12,7 @@ public class CommandLog {
     protected List<String> statsBuffer = new ArrayList<>();
     protected String logFileName;
     public String currentFileName;
+
     public long currentFileEditStartTime;
 
     public CommandLog() {
@@ -44,17 +45,19 @@ public class CommandLog {
         }
     }
 
-    public void showTheHistory(int lines){
+    public boolean showTheHistory(int lines){
         int log_length =commandBuffer.size()-1;
         for(int i = log_length; i >= log_length-lines+1; i--){
             System.out.println(commandBuffer.get(i));
         }
+        return true;
     }
-    public void showTheHistory(){
+    public boolean showTheHistory(){
         int log_length =commandBuffer.size()-1;
         for(int i = log_length; i >= 1; i--){
             System.out.println(commandBuffer.get(i));
         }
+        return true;
     }
 
     public void handleLoadCommand(String file_name) {
@@ -84,7 +87,7 @@ public class CommandLog {
         }
     }
 
-    public void showStats(String types){
+    public boolean showStats(String types){
         List<String> tmp_stats =new ArrayList<>(statsBuffer);
         long editTimeMillis;
         String formattedEditTime = null;
@@ -97,6 +100,7 @@ public class CommandLog {
 
         if( types.equals("current") &&currentFileName != null ){
             System.out.println(currentFileName + " " + formattedEditTime);
+            return false;
         }
         else if(types.equals("all")){
             if(currentFileName!=null) {
@@ -105,9 +109,11 @@ public class CommandLog {
             for(String line: tmp_stats){
                 System.out.println(line);
             }
+            return true;
         }
         else {
             System.out.println("No files have been edited");
+            return false;
         }
     }
 }

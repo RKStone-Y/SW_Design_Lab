@@ -1,15 +1,19 @@
 package ConcreteCommands.EditCommand;
 
 import Interface.Command;
-import Receiver.EditTools;
+import Receiver.Workspace;
 
 public class Redo extends Command {
-    public Redo(EditTools edit_tools){
-        super(edit_tools);
+    public Redo(Workspace workspace){
+        super(workspace);
+        command_id = 6;
     }
-
     @Override
-    public void execute() {
-        edit_tools.redoLastCommand();
+    public boolean undo() {
+        return true;
+    }
+    @Override
+    public boolean execute() {
+        return workspace.redoLastCommand();
     }
 }

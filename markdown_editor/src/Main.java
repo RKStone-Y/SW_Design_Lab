@@ -1,10 +1,10 @@
 import Invoker.Editor;
-import Receiver.EditTools;
+import Receiver.Workspace;
 
 public class Main {
     public static void main(String[] args) {
-        EditTools edit_tools = new EditTools();
+        Workspace workspace = new Workspace();
         Editor editor = new Editor();
-        editor.parseCommand(edit_tools);
+        editor.parseCommand(workspace);
     }
 }

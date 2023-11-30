@@ -1,16 +1,21 @@
 package ConcreteCommands.EditCommand;
 
 import Interface.Command;
-import Receiver.EditTools;
+import Receiver.Workspace;
 
 public class Undo extends Command {
 
-    public Undo(EditTools edit_tools){
-        super(edit_tools);
+    public Undo(Workspace workspace){
+        super(workspace);
+        command_id = 5;
     }
-
     @Override
-    public void execute() {//todo save should make some change
-        edit_tools.withdrawCommand();
+    public boolean undo() {
+        return true;
+    }
+    @Override
+    public boolean execute() {
+//        return workspace.withdrawCommand();
+        return workspace.file_holder.history.commandPop();
     }
 }

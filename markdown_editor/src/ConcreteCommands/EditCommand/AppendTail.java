@@ -1,17 +1,22 @@
 package ConcreteCommands.EditCommand;
 
 import Interface.Command;
-import Receiver.EditTools;
+import Receiver.Workspace;
 
 public class AppendTail extends Command {
     protected String new_content;
-    public AppendTail(EditTools edit_tools,String new_content){
-        super(edit_tools);
+    public AppendTail(Workspace workspace, String new_content){
+        super(workspace);
+        command_id = 3;
         this.new_content = new_content;
     }
     @Override
-    public void execute() {
+    public boolean undo() {
+        return workspace.deleteContentFromFile(new_content);
+    }
+    @Override
+    public boolean execute() {
         notifyHistoryObserver();
-        edit_tools.addNewContentToFile(new_content);
+        return workspace.addNewContentToFile(new_content);
     }
 }

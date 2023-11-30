@@ -1,16 +1,21 @@
 package ConcreteCommands.ViewCommand;
 
 import Interface.Command;
-import Receiver.EditTools;
+import Receiver.Workspace;
 
 public class ListTree extends Command {
-    public ListTree(EditTools edit_tools){
-        super(edit_tools);
+    public ListTree(Workspace workspace){
+        super(workspace);
+        command_id = 14;
     }
 
 
     @Override
-    public void execute() {
-        edit_tools.showWholeTree(edit_tools.file_holder.content);
+    public boolean execute() {
+        return workspace.showWholeTree(workspace.file_holder.content);
+    }
+    @Override
+    public boolean undo() {
+        return true;
     }
 }

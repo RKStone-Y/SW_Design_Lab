@@ -1,7 +1,7 @@
 package ConcreteCommands.FileCommand;
 
 import Interface.Command;
-import Receiver.EditTools;
+import Receiver.Workspace;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -11,12 +11,13 @@ import java.util.List;
 
 public class Save extends Command {
     // 保存Markdown内容回到文件
-    public Save(EditTools edit_tools){
-        super(edit_tools);
+    public Save(Workspace workspace){
+        super(workspace);
+        command_id = 8;
     }
     public List<String> getOriginalFileContent(){
         List<String> tmp_content = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(edit_tools.file_holder.getFile_path()))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(workspace.file_holder.getFile_path()))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 tmp_content.add(line);
@@ -29,15 +30,13 @@ public class Save extends Command {
         }
     }
 
-    // Save has a unique undo and redo,
-    // which depends on the origin_content in file_holder,
-    // so it should be dealt alone;
     @Override
-    public void execute() {
-//        notifyHistoryObserver(getOriginalFileContent());
-        notifyHistoryObserver();
-        edit_tools.file_holder.saveFile();
-
+    public boolean undo() {
+        return true;
+    }
+    @Override
+    public boolean execute() {
+        return workspace.file_holder.saveFile();
     }
 
 
