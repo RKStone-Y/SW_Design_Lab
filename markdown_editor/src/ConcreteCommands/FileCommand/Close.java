@@ -9,7 +9,6 @@ import java.util.List;
 
 @JsonTypeName("Close")
 public class Close extends Command {
-    public List<Workspace> workspaceList;
     public Close(Editor editor){
         super(editor);
         command_id = 10;

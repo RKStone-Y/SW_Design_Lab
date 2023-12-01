@@ -64,18 +64,4 @@ public class Memento {
             e.printStackTrace();
         }
     }
-
-    public static Memento readFromJsonFile(String filePath) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            // 从 JSON 文件读取 JSON 字符串
-            String jsonString = objectMapper.readValue(new File(filePath), String.class);
-
-            // 将 JSON 字符串转换为 Memento 对象
-            return objectMapper.readValue(jsonString, Memento.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 }

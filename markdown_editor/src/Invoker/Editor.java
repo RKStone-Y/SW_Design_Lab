@@ -397,12 +397,8 @@ public class Editor {
             if(ExeSuccess){
                 command_log.logCommand(input);
                 switch (command_name) {//todo
-                    case "load" -> {
-                        command_log.handleLoadCommand(workspace.file_holder.getFile_path());//stat module
-                    }
-                    case "insert","append-head","append-tail","delete","undo","redo" -> {
-                        workspace.isSaved = false;
-                    }
+                    case "load" -> command_log.handleLoadCommand(workspace.file_holder.getFile_path());//stat module
+                    case "insert","append-head","append-tail","delete","undo","redo" -> workspace.isSaved = false;
                     case "close" -> {
                         if(!workspace_list.isEmpty()) {
                             workspace = workspace_list.get(workspace_list.size() - 1);
@@ -411,9 +407,7 @@ public class Editor {
                             workspace = new Workspace();
                         }
                     }
-                    case "save" -> {
-                        workspace.isSaved = true;
-                    }
+                    case "save" -> workspace.isSaved = true;
                 }
             }
             else{
