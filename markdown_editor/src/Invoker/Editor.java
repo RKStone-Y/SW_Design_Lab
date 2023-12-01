@@ -261,6 +261,7 @@ public class Editor {
                 }
                 case "save" -> {
                     skip_undo=true;
+//                    workspace.isSaved = true;
                     command = new Save(workspace);
                 }
                 case "insert" -> {

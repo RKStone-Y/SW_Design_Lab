@@ -18,20 +18,6 @@ public class Save extends Command {
         super(workspace);
         command_id = 8;
     }
-    public List<String> getOriginalFileContent(){
-        List<String> tmp_content = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(workspace.file_holder.getFile_path()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                tmp_content.add(line);
-            }
-            return tmp_content;
-        } catch (IOException e) {
-            e.printStackTrace();
-            // 处理文件读取异常
-            return null;
-        }
-    }
 
     @Override
     public boolean undo() {

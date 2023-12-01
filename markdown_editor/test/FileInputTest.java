@@ -1,12 +1,7 @@
 import Invoker.Editor;
-import Observer.CommandLog;
-import Receiver.EditTools;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -30,8 +25,7 @@ public class FileInputTest {
 
             // 创建编辑器和编辑工具
             Editor editor = new Editor();
-            EditTools edit_tools = new EditTools();
-            editor.parseCommand(edit_tools);
+            editor.parseCommand();
 
             // 进行断言以验证程序的输出或状态
             String line_output = null,line_result = null;
