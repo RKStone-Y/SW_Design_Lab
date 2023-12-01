@@ -2,10 +2,13 @@ package ConcreteCommands.EditCommand;
 
 import Interface.Command;
 import Receiver.Workspace;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
+@JsonTypeName("Insert")
 public class Insert extends Command {
-    protected int line;
-    protected String new_content;
+    public int line;
+    public String new_content;
+    public Insert(){}
     public Insert(Workspace workspace, int line, String new_content){
         super(workspace);
         command_id = 1;

@@ -2,10 +2,13 @@ package ConcreteCommands.LogCommand;
 
 import Interface.Command;
 import Observer.CommandLog;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
+@JsonTypeName("History")
 public class History extends Command {
-    int line;
-    boolean isAll;
+    public int line;
+    public boolean isAll;
+    public History(){}
     public History(CommandLog command_log, int line){
         super(command_log);
         command_id = 11;

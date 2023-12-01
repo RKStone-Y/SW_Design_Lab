@@ -2,9 +2,13 @@ package ConcreteCommands.StatisticCommand;
 
 import Interface.Command;
 import Observer.CommandLog;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
+
+@JsonTypeName("Stats")
 public class Stats extends Command {
-    protected String target_file;
+    public String target_file;
+    public Stats(){}
     public Stats(CommandLog command_log, String target_file){
         super(command_log);
         command_id = 12;

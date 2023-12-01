@@ -1,22 +1,26 @@
 package ConcreteCommands.FileCommand;
 
 import Interface.Command;
+import Invoker.Editor;
 import Receiver.Workspace;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.List;
+
+@JsonTypeName("Close")
 public class Close extends Command {
-    List<Workspace> workspaceList;
-    public Close(Workspace workspace,List<Workspace> workspaceList){
-        super(workspace);
+    public List<Workspace> workspaceList;
+    public Close(Editor editor){
+        super(editor);
         command_id = 10;
-        this.workspaceList = workspaceList;
     }
+    public Close(){}
     @Override
     public boolean undo() {
         return true;
     }
     @Override
     public boolean execute() {
-        return workspace.closeWorkspace(workspaceList);
+        return editor.closeWorkspace();
     }
 }

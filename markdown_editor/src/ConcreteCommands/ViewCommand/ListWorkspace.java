@@ -2,12 +2,14 @@ package ConcreteCommands.ViewCommand;
 
 import Interface.Command;
 import Receiver.Workspace;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import java.util.ArrayList;
 import java.util.List;
 
+@JsonTypeName("ListWorkspace")
 public class ListWorkspace extends Command {
-    List<Workspace> workspaceList;
+    public List<Workspace> workspaceList;
+    public ListWorkspace(){}
     public ListWorkspace(Workspace workspace,List<Workspace> workspaceList){
         super(workspace);
         command_id = 16;

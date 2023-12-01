@@ -26,28 +26,8 @@ public class FileHolder {
         this.file_path = file_path;
     }
 
-    public void setContent(List<String> new_content){
-        this.content.clear();
-        content.addAll(new_content);
-    }
-
     public boolean openMarkDownFile(){
         // Called by the Command Load
-
-//        if(!content.isEmpty()){
-//            System.out.println("打开新文件将覆盖原文件，是否继续执行load：（Y/N）（请确定已保存源原文件）");
-//            Scanner scanner = new Scanner(System.in);
-//            while (true) {
-//                String  userInput = scanner.nextLine();
-//                if (userInput.equals("yes")) {
-//                    break;
-//                } else if (userInput.equals("no")) {
-//                    return;
-//                } else {
-//                    System.out.println("Invalid input. Please enter 'yes' or 'no'.");
-//                }
-//            }
-//        }
         history.clear();
         if(!file_path.endsWith(".md")){
             System.err.println("请输入markdown文件：*.md");
@@ -142,15 +122,16 @@ public class FileHolder {
         return result;
     }
 
-    public Memento createMemento(){
-        return new Memento(this.content,this.history,this.file_path,this.content_lines);
+    public void createMemento(boolean isSaved, boolean active){
+        Memento memento = new Memento(this.content,this.history,this.file_path,this.content_lines,isSaved,active);
+        memento.writeToJsonFile("workspace_memento/"+file_path.replace("md_file/","").replace("/","_")+".json");
     }
     public void restore(Memento memento){
         this.content.clear();
-        this.content.addAll(memento.content());
-        this.content_lines= memento.content_lines();
-        this.history=memento.history();
-        this.file_path= memento.file_path();
+        this.content.addAll(memento.getContent());
+        this.content_lines= memento.getContent_lines();
+        this.history = memento.getHistory();
+        this.file_path= memento.getFile_path();
     }
 
 }

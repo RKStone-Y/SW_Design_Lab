@@ -6,40 +6,16 @@ import Receiver.ContentTree.TreeConstructor;
 import Receiver.ContentTree.Visitor.TreeVisitor;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class Workspace {
     public FileHolder file_holder;
-    public boolean isSaved = false;
+    public boolean isSaved = true;
+    public boolean active = false;
     public Workspace(){
         file_holder = new FileHolder();
     }
-    public boolean closeWorkspace(List<Workspace> workspaceList){
-        if(workspaceList.isEmpty()){
-            System.err.println("未开启任何文件");
-            return false;
-        }
-        if(!isSaved){
-            System.out.println("该文件未保存，是否需要保存？（Y/N）");
-            Scanner scanner = new Scanner(System.in);
-            while (true) {
-                String  userInput = scanner.nextLine();
-                if (userInput.equals("y")||userInput.equals("Y")) {
-                    file_holder.saveFile();
-                    break;
-                } else if (userInput.equals("n")||userInput.equals("N")) {
-                    file_holder.clear();
-                    break;
-                } else {
-                    System.out.println("Invalid input. Please enter 'yes' or 'no'.");
-                }
-            }
-        }
-        workspaceList.remove(this);
-        return true;
-    }
+
     // insert
     public boolean addNewContentToFile(int line , String new_content){ // line is index from 1 to n
         File file = new File(file_holder.file_path);
@@ -108,24 +84,12 @@ public class Workspace {
         }
     }
 
-    // undo
-//    public boolean withdrawCommand(){
-//        List<String> tmp_content = new ArrayList<>();
-//        boolean can_command_pop = file_holder.history.commandPop(tmp_content);
-//        if(can_command_pop){
-//            file_holder.setContent(tmp_content);
-//            return true;
-//        }
-//        else{
-//            System.out.println("withdrawCommand: Can not Pop\n");
-//            return false;
-//        }
-//    }
 
     //redo
     public boolean redoLastCommand(){
         if(!file_holder.history.undo_list.isEmpty()) {
             Command command = file_holder.history.undo_list.pop();
+            command.setWorkspace(this);
             return command.execute();
         }
         else {

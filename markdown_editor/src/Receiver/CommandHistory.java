@@ -41,15 +41,16 @@ public class CommandHistory {
 
 
     // push means a command has been executed
-    public void commandPush(Command command,List<String> content) {
+    public void commandPush(Command command) {
         command_history.push(command);
     }
 
     //pop means undo the command
-    public boolean commandPop() {
+    public boolean commandPop(Workspace workspace) {
         if(canUndo()){
             Command command = command_history.pop();
             undo_list.push(command);
+            command.setWorkspace(workspace);
             return command.undo();
         }
         else {

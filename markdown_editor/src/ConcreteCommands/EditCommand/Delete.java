@@ -2,12 +2,15 @@ package ConcreteCommands.EditCommand;
 
 import Interface.Command;
 import Receiver.Workspace;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
+@JsonTypeName("Delete")
 public class Delete extends Command {
     public String target_content;
     public int line;
     public String  removed_content;
     public boolean flag;
+    public Delete(){}
     public Delete(Workspace workspace, String target_content){
         super(workspace);
         command_id = 4;

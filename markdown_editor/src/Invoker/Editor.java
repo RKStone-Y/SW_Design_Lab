@@ -1,26 +1,33 @@
 package Invoker;
 
 import ConcreteCommands.EditCommand.*;
-import ConcreteCommands.FileCommand.Close;
-import ConcreteCommands.FileCommand.Load;
-import ConcreteCommands.FileCommand.Open;
-import ConcreteCommands.FileCommand.Save;
+import ConcreteCommands.FileCommand.*;
 import ConcreteCommands.LogCommand.History;
 import ConcreteCommands.StatisticCommand.Stats;
 import ConcreteCommands.ViewCommand.*;
 import Interface.Command;
 import Observer.CommandLog;
+import Receiver.Memento;
 import Receiver.Workspace;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 public class Editor {
     protected Command command;
-    public Editor(){}
+    public Editor(){
+        workspace = new Workspace();
+    }
     public CommandLog command_log;
-    public Workspace current_workspace = new Workspace();
+    public Workspace workspace = new Workspace();
+    public Workspace current_workspace = new Workspace();// save the current workspace in case the failed load
     java.util.List<Workspace> workspace_list  = new ArrayList<>();
     public Editor(Command command){
         this.command = command;
@@ -40,21 +47,26 @@ public class Editor {
         return null;
     }
 
-    public static boolean showDirectory(String path,int level){
+    public static boolean showDirectory(String path,String current_file,int level){
         File directory = new File(path);
         File[] files = directory.listFiles();
 
         if (files != null) {
             for (int i=0;i<files.length ;i++) {
                 File file = files[i];
+                String output;
                 if(i==files.length-1) {
-                    System.out.println("    ".repeat(level)+"└──" + file.getName());
+                    output = "    ".repeat(level)+"└──" + file.getName();
                 }
                 else{
-                    System.out.println("    ".repeat(level)+"├──" + file.getName());
+                    output = "    ".repeat(level)+"├──" + file.getName();
                 }
+                if(file.getName().equals(current_file)){
+                    output += "  *";
+                }
+                System.out.println(output);
                 if (file.isDirectory()) {
-                    showDirectory(file.getPath(),level+1);
+                    showDirectory(file.getPath(),current_file,level+1);
                 }
             }
             return true;
@@ -65,8 +77,116 @@ public class Editor {
         }
 
     }
+    public void deleteMemento(){
+        try {
+            String directoryPath = "workspace_memento";
+            Stream<Path> files = Files.list(Paths.get(directoryPath));
 
-    public void parseCommand(Workspace workspace){
+            files.forEach(file -> {
+                try {
+                    Files.delete(file);
+//                    System.out.println("Deleted file: " + file);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            files.close();
+//            System.out.println("All files in the directory have been deleted.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public boolean exitEditor(){
+        boolean existUnsavedFile = false;
+        for(Workspace tmp: workspace_list){
+            if(!tmp.isSaved){
+                existUnsavedFile = true;
+                break;
+            }
+        }
+        if(existUnsavedFile){
+            System.out.println("Do you want to save the unsaved workspace [Y\\N] ?");
+            Scanner scanner = new Scanner(System.in);
+            while (true) {
+                String userInput = scanner.nextLine();
+                if (userInput.equals("y")||userInput.equals("Y")) {
+                    for(Workspace tmp_workspace: workspace_list){
+                        tmp_workspace.file_holder.saveFile();
+                    }
+                    break;
+                } else if (userInput.equals("n")||userInput.equals("N")) {
+                    break;
+                } else {
+                    System.out.println("Invalid input. Please enter 'yes' or 'no'.");
+                }
+            }
+        }
+        deleteMemento();
+        if(!workspace_list.isEmpty() ){
+            for(Workspace tmp_workspace: workspace_list){
+                tmp_workspace.file_holder.createMemento(tmp_workspace.isSaved,tmp_workspace.active);
+            }
+        }
+        return true;
+    }
+    public void restore_workspace(){
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        String directoryPath ="workspace_memento";
+        File directory = new File(directoryPath);
+        File[] files = directory.listFiles();
+
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile() && file.getName().endsWith(".json")) {
+                    try {
+                        // read json
+                        String jsonString = objectMapper.readValue(file, String.class);
+
+                        // turn json to file content
+                        Memento memento = objectMapper.readValue(jsonString, Memento.class);
+                        Workspace origin_workspace = new Workspace();
+                        origin_workspace.file_holder.restore(memento);
+                        origin_workspace.isSaved = memento.isSaved();
+                        origin_workspace.active = memento.isActive();
+                        if(origin_workspace.active){
+                            this.workspace = origin_workspace;
+                        }
+                        workspace_list.add(origin_workspace);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+//                    jsonFiles.add(file);
+                }
+            }
+        }
+
+    }
+    public boolean closeWorkspace(){
+        if(workspace_list.isEmpty()){
+            System.err.println("未开启任何文件");
+            return false;
+        }
+        if(!workspace.isSaved){
+            System.out.println("Do you want to save the current workspace [Y\\N] ?");
+            Scanner scanner = new Scanner(System.in);
+            while (true) {
+                String  userInput = scanner.nextLine();
+                if (userInput.equals("y")||userInput.equals("Y")) {
+                    workspace.file_holder.saveFile();
+                    break;
+                } else if (userInput.equals("n")||userInput.equals("N")) {
+                    workspace.file_holder.clear();
+                    break;
+                } else {
+                    System.out.println("Invalid input. Please enter 'yes' or 'no'.");
+                }
+            }
+        }
+        workspace_list.remove(workspace);
+        return true;
+    }
+    public void parseCommand(){
         Scanner scanner = new Scanner(System.in);
         command_log = new CommandLog();
         boolean ExeSuccess;
@@ -84,10 +204,17 @@ public class Editor {
                     skip_undo=true;
                     if (parts.length == 2) {
                         String param = parts[1];
-                        if(param.equals(workspace.file_holder.getFile_path())){
+                        Workspace tmp = searchWorkspace(param);
+//                        if(param.equals(workspace.file_holder.getFile_path())){
+//                            System.out.println("Already been loaded");
+//                            continue;
+//                        }
+                        if(tmp!=null){
+                            workspace = tmp;
                             System.out.println("Already been loaded");
                             continue;
                         }
+
                         else {
                             //save the current command, in case to wrong command
                             current_workspace = workspace;
@@ -130,7 +257,7 @@ public class Editor {
                 }
                 case "close" -> {
                     skip_undo=true;
-                    command = new Close(workspace,workspace_list);
+                    command = new Close(this);
                 }
                 case "save" -> {
                     skip_undo=true;
@@ -251,6 +378,9 @@ public class Editor {
                 }
                 case "exit" ->{//todo: save the editing workspace
                     command_log.saveToLog();
+                    workspace.active = true;
+                    command = new Exit(this);
+                    command.execute();
                     return;
                 }
                 default -> {

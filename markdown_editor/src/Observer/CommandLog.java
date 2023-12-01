@@ -16,9 +16,10 @@ public class CommandLog {
     public long currentFileEditStartTime;
 
     public CommandLog() {
-        String timestamp = new SimpleDateFormat("yyyyMMSS_HH_mm_ss").format(new Date());
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date());
+        String sanitizedTimestamp = timestamp.replace(":", "_");
         String log_directory = "logs";
-        logFileName = log_directory + File.separator + "command_" + timestamp + ".log";
+        logFileName = log_directory + File.separator + "command_" + sanitizedTimestamp + ".log";
         writeSessionStartLog(timestamp);
     }
 
