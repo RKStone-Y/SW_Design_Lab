@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileHolder {
+    public List<String> saved_content = new ArrayList<>();
     public List<String> content = new ArrayList<>();
     public CommandHistory history = new CommandHistory();
     protected String file_path = "";
@@ -54,6 +55,7 @@ public class FileHolder {
                 while ((line = reader.readLine()) != null) {
                     content.add(line);
                 }
+                saved_content.addAll(content);
                 content_lines = content.size();
                 return true;
             } catch (IOException e) {
@@ -73,23 +75,27 @@ public class FileHolder {
             System.err.println("文件不合法，无法保存：" + file_path);
             return false;
         }
-        if (file.exists()) {
+        else {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file_path))) {
                 // 在这里逐行写入Markdown内容
                 for(String line: content){
                     writer.write(line);
                     writer.newLine();
                 }
-                // 可以根据需要编辑每行
+                saved_content.clear();
+                saved_content.addAll(content);
+                return true;
             } catch (IOException e) {
                 e.printStackTrace();
                 // 处理文件写入异常
                 return false;
             }
         }
-        return true;
     }
-
+    public void setSavedContent(){
+        content.clear();
+        content.addAll(saved_content);
+    }
     public List<String> searchTargetDirectory(String target_dir){
         List<String> result = new ArrayList<>();
         int level = 0;
@@ -123,12 +129,13 @@ public class FileHolder {
     }
 
     public void createMemento(boolean isSaved, boolean active){
-        Memento memento = new Memento(this.content,this.history,this.file_path,this.content_lines,isSaved,active);
+        Memento memento = new Memento(this.content,this.saved_content,this.history,this.file_path,this.content_lines,isSaved,active);
         memento.writeToJsonFile("workspace_memento/"+file_path.replace("md_file/","").replace("/","_")+".json");
     }
     public void restore(Memento memento){
         this.content.clear();
         this.content.addAll(memento.getContent());
+        this.saved_content.addAll(memento.getSaved_content());
         this.content_lines= memento.getContent_lines();
         this.history = memento.getHistory();
         this.file_path= memento.getFile_path();

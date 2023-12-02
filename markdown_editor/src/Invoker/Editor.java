@@ -112,9 +112,16 @@ public class Editor {
                 if (userInput.equals("y")||userInput.equals("Y")) {
                     for(Workspace tmp_workspace: workspace_list){
                         tmp_workspace.file_holder.saveFile();
+                        tmp_workspace.isSaved = true;
                     }
                     break;
                 } else if (userInput.equals("n")||userInput.equals("N")) {
+                    for(Workspace tmp: workspace_list){
+                        if(!tmp.isSaved){
+                            tmp.file_holder.setSavedContent();
+                            tmp.isSaved = true;
+                        }
+                    }
                     break;
                 } else {
                     System.out.println("Invalid input. Please enter 'yes' or 'no'.");
@@ -377,8 +384,12 @@ public class Editor {
                     }
                     command = new Stats(command_log,args);
                 }
-                case "exit" ->{//todo: save the editing workspace
+                case "exit" ->{
                     command_log.saveToLog();
+
+                    for(Workspace tmp:workspace_list){//不然可能出现多个active
+                        tmp.active = false;
+                    }
                     workspace.active = true;
                     command = new Exit(this);
                     command.execute();

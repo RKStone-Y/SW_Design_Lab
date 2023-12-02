@@ -9,6 +9,7 @@ import java.util.List;
 
 public class Memento {
     private final List<String> content;
+    private final List<String> saved_content;
     private final boolean saved;
     private final boolean active;
     private final CommandHistory history;
@@ -17,6 +18,10 @@ public class Memento {
 
     public int getContent_lines() {
         return content_lines;
+    }
+
+    public List<String> getSaved_content() {
+        return saved_content;
     }
 
     public String getFile_path() {
@@ -40,12 +45,13 @@ public class Memento {
     }
 
     public Memento() {
-        this(new ArrayList<>(), new CommandHistory(), "", 0,false,false);
+        this(new ArrayList<>(), new ArrayList<>(),new CommandHistory(), "", 0,false,false);
     }
-    public Memento(List<String> content, CommandHistory history, String file_path, int content_lines,boolean isSaved,boolean active) {
+    public Memento(List<String> content,List<String> saved_content, CommandHistory history, String file_path, int content_lines,boolean isSaved,boolean active) {
         this.saved = isSaved;
         this.active = active;
         this.content = new ArrayList<>(content);
+        this.saved_content = new ArrayList<>(saved_content);
         this.history = new CommandHistory(history);
         this.file_path = file_path;
         this.content_lines = content_lines;
