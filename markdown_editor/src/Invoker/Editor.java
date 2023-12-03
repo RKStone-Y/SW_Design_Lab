@@ -28,7 +28,7 @@ public class Editor {
     public CommandLog command_log;
     public Workspace workspace = new Workspace();
     public Workspace current_workspace = new Workspace();// save the current workspace in case the failed load
-    java.util.List<Workspace> workspace_list  = new ArrayList<>();
+    public java.util.List<Workspace> workspace_list  = new ArrayList<>();
     public Editor(Command command){
         this.command = command;
     }
@@ -136,7 +136,7 @@ public class Editor {
         }
         return true;
     }
-    public void restore_workspace(){
+    public void restoreWorkspace(){
         ObjectMapper objectMapper = new ObjectMapper();
 
         String directoryPath ="workspace_memento";

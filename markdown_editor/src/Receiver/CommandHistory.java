@@ -8,11 +8,6 @@ public class CommandHistory {
     public Stack<Command>  command_history;
     public Stack<Command>  undo_list;
 
-    public void clear(){
-        command_history.clear();
-        undo_list.clear();
-    }
-
     public CommandHistory(){
         command_history = new Stack<>();
         undo_list = new Stack<>();
@@ -24,6 +19,12 @@ public class CommandHistory {
         this.undo_list = new Stack<>();
         this.undo_list.addAll(history.undo_list);
     }
+
+    public void clear(){
+        command_history.clear();
+        undo_list.clear();
+    }
+
     public boolean canUndo() {
         return !command_history.isEmpty();
     }
@@ -44,7 +45,7 @@ public class CommandHistory {
             return command.undo();
         }
         else {
-            System.err.println("没有已执行指令，无法undo");
+            System.err.println("commandPop: No executed command, Cannot Undo");
             return false;
         }
     }

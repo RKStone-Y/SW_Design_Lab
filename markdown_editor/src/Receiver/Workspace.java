@@ -23,7 +23,7 @@ public class Workspace {
             System.err.println("文件不存在，请先打开文件");
             return false;
         }
-        if(file.exists()){
+        if(file.isFile()){
             file_holder.content_lines = file_holder.content.size();
             if(line <= file_holder.content_lines-1) {
                 file_holder.content.add(line, new_content);
@@ -109,6 +109,7 @@ public class Workspace {
         }
         return true;
     }
+
     public boolean showWholeTree(List<String> target_content){
         if(target_content.isEmpty()){
             System.err.println("showWholeTree: empty content");
