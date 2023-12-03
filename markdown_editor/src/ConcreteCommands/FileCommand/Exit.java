@@ -3,10 +3,11 @@ package ConcreteCommands.FileCommand;
 
 import Interface.Command;
 import Invoker.Editor;
+import Receiver.Workspace;
 
 public class Exit extends Command {
     public Exit(Editor editor){
-        this.editor=editor;
+        super(editor);
     }
     @Override
     public boolean undo() {

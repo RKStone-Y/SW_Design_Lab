@@ -20,7 +20,7 @@ public class Workspace {
     public boolean addNewContentToFile(int line , String new_content){ // line is index from 1 to n
         File file = new File(file_holder.file_path);
         if(!file.exists()){
-            System.err.println("文件不存在，请先打开文件");
+            System.err.println(file_holder.file_path + " 文件不存在，请先打开文件");
             return false;
         }
         if(file.isFile()){
@@ -38,7 +38,7 @@ public class Workspace {
     public boolean addNewContentToFile(String new_content){ // line is index from 1 to n
         File file = new File(file_holder.file_path);
         if(!file.exists()){
-            System.err.println("文件不存在，请先打开文件");
+            System.err.println(file_holder.file_path+ " 文件不存在，请先打开文件");
             return false;
         }
         else{

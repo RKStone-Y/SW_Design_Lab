@@ -99,6 +99,7 @@ public class Editor {
     public boolean exitEditor(){
         boolean existUnsavedFile = false;
         for(Workspace tmp: workspace_list){
+//            System.out.println("undo list size= "+tmp.file_holder.history.undo_list.size());
             if(!tmp.isSaved){
                 existUnsavedFile = true;
                 break;
@@ -117,6 +118,7 @@ public class Editor {
                     break;
                 } else if (userInput.equals("n")||userInput.equals("N")) {
                     for(Workspace tmp: workspace_list){
+//                        System.out.println("undo list size= "+tmp.file_holder.history.undo_list.size());
                         if(!tmp.isSaved){
                             tmp.file_holder.setSavedContent();
                             tmp.isSaved = true;
@@ -131,6 +133,7 @@ public class Editor {
         deleteMemento();
         if(!workspace_list.isEmpty() ){
             for(Workspace tmp_workspace: workspace_list){
+//                System.out.println("undo list size= "+tmp_workspace.file_holder.history.undo_list.size());
                 tmp_workspace.file_holder.createMemento(tmp_workspace.isSaved,tmp_workspace.active);
             }
         }
@@ -247,7 +250,7 @@ public class Editor {
                     StringBuilder new_content = new StringBuilder();
 
                     String[] arguments = parts[1].split(" ",2);
-                    if (arguments[0].matches("-?\\d+")) {
+                    if (arguments[0].matches("-?\\d+") && arguments.length == 2) {
                         line = Integer.parseInt(arguments[0]);
                         new_content.append(arguments[1]);
                         command = new Insert(workspace, line, new_content.toString());
@@ -352,7 +355,7 @@ public class Editor {
                     command = new Stats(this,args);
                 }
                 case "exit" ->{
-
+                    skip_undo = true;
                     for(Workspace tmp:workspace_list){//不然可能出现多个active
                         tmp.active = false;
                     }
