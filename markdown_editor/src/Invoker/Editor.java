@@ -24,10 +24,10 @@ public class Editor {
     protected Command command;
     public Editor(){
         workspace = new Workspace();
+        command_log = new CommandLog();
     }
     public CommandLog command_log;
     public Workspace workspace = new Workspace();
-    public Workspace current_workspace = new Workspace();// save the current workspace in case the failed load
     public java.util.List<Workspace> workspace_list  = new ArrayList<>();
     public Editor(Command command){
         this.command = command;
@@ -38,7 +38,7 @@ public class Editor {
     public boolean executeCommand(){
         return command.execute();
     }
-    private Workspace searchWorkspace(String filePath){
+    public Workspace searchWorkspace(String filePath){
         for(Workspace tmp: workspace_list){
             if(filePath.equals(tmp.file_holder.getFile_path())){
                 return tmp;
@@ -159,6 +159,7 @@ public class Editor {
                         if(origin_workspace.active){
                             this.workspace = origin_workspace;
                         }
+                        command_log.handleLoadCommand(origin_workspace.file_holder.getFile_path());
                         workspace_list.add(origin_workspace);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -195,10 +196,10 @@ public class Editor {
     }
     public void parseCommand(){
         Scanner scanner = new Scanner(System.in);
-        command_log = new CommandLog();
         boolean ExeSuccess;
         while (true) {
             boolean skip_undo = false;
+            String closeFilePath = "";
             System.out.print("Enter command: ");
             String input = scanner.nextLine().trim();
             // 分割输入字符串，假设命令和参数之间用空格分隔
@@ -211,29 +212,7 @@ public class Editor {
                     skip_undo=true;
                     if (parts.length == 2) {
                         String param = parts[1];
-                        Workspace tmp = searchWorkspace(param);
-//                        if(param.equals(workspace.file_holder.getFile_path())){
-//                            System.out.println("Already been loaded");
-//                            continue;
-//                        }
-                        if(tmp!=null){
-                            workspace = tmp;
-                            System.out.println("Already been loaded");
-                            continue;
-                        }
-
-                        else {
-                            //save the current command, in case to wrong command
-                            current_workspace = workspace;
-
-                            //create new workspace
-                            Workspace new_workspace = new Workspace();
-                            workspace = new_workspace;
-                            workspace_list.add(new_workspace);
-
-                            //generate command
-                            command = new Load(workspace, param);
-                        }
+                        command = new Load(this, param);
                     } else {
                         System.out.println("Invalid load usage should be \"load <directory>\"");
                         continue;
@@ -241,22 +220,9 @@ public class Editor {
                 }
                 case "open" ->{
                     skip_undo=true;
-                    current_workspace = workspace;
                     if (parts.length == 2) {
                         String fileName = parts[1];
-                        if(fileName.equals(workspace.file_holder.getFile_path())){
-                            System.out.println("Already been open");
-                            continue;
-                        }
-                        else {
-                            workspace = searchWorkspace(fileName);
-                            if(workspace == null){
-                                workspace = current_workspace;
-                                System.out.println("No such workspace");
-                                continue;
-                            }
-                            command = new Open(workspace,workspace_list);
-                        }
+                        command = new Open(this,fileName);
                     } else {
                         System.out.println("Invalid load usage should be \"load <directory>\"");
                         continue;
@@ -265,6 +231,7 @@ public class Editor {
                 case "close" -> {
                     skip_undo=true;
                     command = new Close(this);
+                    closeFilePath=workspace.file_holder.getFile_path();
                 }
                 case "save" -> {
                     skip_undo=true;
@@ -382,18 +349,15 @@ public class Editor {
                         System.out.println("Invalid Stats usage: stats all/current");
                         continue;
                     }
-                    command = new Stats(command_log,args);
+                    command = new Stats(this,args);
                 }
                 case "exit" ->{
-                    command_log.saveToLog();
 
                     for(Workspace tmp:workspace_list){//不然可能出现多个active
                         tmp.active = false;
                     }
                     workspace.active = true;
                     command = new Exit(this);
-                    command.execute();
-                    return;
                 }
                 default -> {
                     System.out.println("Unknown command: " + command_name);
@@ -408,9 +372,10 @@ public class Editor {
             if(ExeSuccess){
                 command_log.logCommand(input);
                 switch (command_name) {//todo
-                    case "load" -> command_log.handleLoadCommand(workspace.file_holder.getFile_path());//stat module
+                    case "load","open" -> command_log.handleLoadCommand(workspace.file_holder.getFile_path());//stat module
                     case "insert","append-head","append-tail","delete","undo","redo" -> workspace.isSaved = false;
                     case "close" -> {
+                        command_log.endWorkRecord(closeFilePath);
                         if(!workspace_list.isEmpty()) {
                             workspace = workspace_list.get(workspace_list.size() - 1);
                         }
@@ -419,15 +384,12 @@ public class Editor {
                         }
                     }
                     case "save" -> workspace.isSaved = true;
+                    case "exit" -> {
+                        command_log.saveToLog();
+                        return;
+                    }
                 }
             }
-            else{
-                if(command_name.equals("load")) {
-                    workspace_list.remove(workspace_list.size() - 1);
-                    workspace = current_workspace;
-                }
-            }
-
         }
     }
 }

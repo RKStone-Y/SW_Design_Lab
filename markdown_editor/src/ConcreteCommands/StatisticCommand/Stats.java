@@ -1,6 +1,7 @@
 package ConcreteCommands.StatisticCommand;
 
 import Interface.Command;
+import Invoker.Editor;
 import Observer.CommandLog;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -9,14 +10,14 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 public class Stats extends Command {
     public String target_file;
     public Stats(){}
-    public Stats(CommandLog command_log, String target_file){
-        super(command_log);
+    public Stats(Editor editor, String target_file){
+        super(editor);
         command_id = 12;
         this.target_file = target_file;
     }
     @Override
     public boolean execute() {
-        return command_log.showStats(target_file);
+        return editor.command_log.showStats(editor,target_file);
     }
     @Override
     public boolean undo() {

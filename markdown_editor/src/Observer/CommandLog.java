@@ -1,5 +1,7 @@
 package Observer;
 
+import Invoker.Editor;
+
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -11,11 +13,13 @@ public class CommandLog {
     protected List<String> commandBuffer = new ArrayList<>();
     protected List<String> statsBuffer = new ArrayList<>();
     protected String logFileName;
-    public String currentFileName;
+    public List<String> currentFileName ;
 
-    public long currentFileEditStartTime;
+    public List<Long> currentFileEditStartTime;
 
     public CommandLog() {
+        currentFileName = new ArrayList<>();
+        currentFileEditStartTime = new ArrayList<>();
         String timestamp = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date());
         String sanitizedTimestamp = timestamp.replace(":", "_");
         String log_directory = "logs";
@@ -34,7 +38,9 @@ public class CommandLog {
     }
 
     public void saveToLog() {
-        handleLoadCommand(null);
+        for(String fileName: currentFileName){
+            calculateWorkTime(fileName);
+        }
         commandBuffer.addAll(statsBuffer);
         try (FileWriter logFile = new FileWriter(logFileName)) {
             for (String commandEntry : commandBuffer) {
@@ -62,14 +68,28 @@ public class CommandLog {
     }
 
     public void handleLoadCommand(String file_name) {
-        if (currentFileName != null) {
-            // 计算编辑时间并记录
-            long editTimeMillis = System.currentTimeMillis() - currentFileEditStartTime;
-            String formattedEditTime = formatEditTime(editTimeMillis);
-            statsBuffer.add(currentFileName + " " + formattedEditTime);
+        if(currentFileName != null&&currentFileName.contains(file_name)){
+            return;
         }
-        currentFileName = file_name;
-        currentFileEditStartTime = System.currentTimeMillis();
+        currentFileName.add(file_name);
+        currentFileEditStartTime.add(System.currentTimeMillis());
+    }
+    public void calculateWorkTime(String fileName){
+        int index = currentFileName.indexOf(fileName);
+        if (index !=-1) {
+            // 计算编辑时间并记录
+            long editTimeMillis = System.currentTimeMillis() - currentFileEditStartTime.get(index);
+            String formattedEditTime = formatEditTime(editTimeMillis);
+            statsBuffer.add(currentFileName.get(index) + " " + formattedEditTime);
+        }
+    }
+    public void endWorkRecord(String fileName){
+        int index = currentFileName.indexOf(fileName);
+        if(index !=-1){
+            calculateWorkTime(fileName);
+            currentFileName.remove(index);
+            currentFileEditStartTime.remove(index);
+        }
     }
     private String formatEditTime(long editTimeMillis) {
         long seconds = editTimeMillis / 1000;
@@ -88,25 +108,28 @@ public class CommandLog {
         }
     }
 
-    public boolean showStats(String types){
+    public boolean showStats(Editor editor, String types){
         List<String> tmp_stats =new ArrayList<>(statsBuffer);
-        long editTimeMillis;
-        String formattedEditTime = null;
+        List<Long> editTimeMillis = new ArrayList<>();
+        List<String> formattedEditTime = new ArrayList<>();
         if (currentFileName != null) {
             // 计算编辑时间并记录
-            editTimeMillis = System.currentTimeMillis() - currentFileEditStartTime;
-            formattedEditTime = formatEditTime(editTimeMillis);
-            tmp_stats.add(currentFileName + " " + formattedEditTime);
+            for(int i=0;i<currentFileName.size();i++) {
+                editTimeMillis.add(System.currentTimeMillis() - currentFileEditStartTime.get(i));
+                formattedEditTime.add(formatEditTime(editTimeMillis.get(i)));
+                tmp_stats.add(currentFileName.get(i) + " " + formattedEditTime.get(i));
+            }
         }
 
         if( types.equals("current") &&currentFileName != null ){
-            System.out.println(currentFileName + " " + formattedEditTime);
+            int index = currentFileName.indexOf(editor.workspace.file_holder.getFile_path());
+            System.out.println(currentFileName.get(index) + " " + formattedEditTime.get(index));
             return false;
         }
         else if(types.equals("all")){
-            if(currentFileName!=null) {
-                tmp_stats.add(currentFileName + " " + formattedEditTime);
-            }
+//            if(currentFileName!=null) {
+//                tmp_stats.add(currentFileName + " " + formattedEditTime);
+//            }
             for(String line: tmp_stats){
                 System.out.println(line);
             }
